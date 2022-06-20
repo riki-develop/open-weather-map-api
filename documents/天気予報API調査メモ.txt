@@ -1,0 +1,43 @@
+[info]
+[title]■天気予報API：調査[/title]
+※前提条件
+・沖縄地域に絞ったデータ取得
+・風向き・風の強さのデータ取得
+・無料使用可能
+
+[hr]
+
+■OpenWeatherMap
+
+▼公式
+https://openweathermap.org/guide
+
+▼参考
+https://dev.classmethod.jp/articles/use-open-weather-map/
+https://dev.classmethod.jp/articles/openweather_-pyowm/
+
+▼長所
+・シンプルで高速
+・複数都市対応（那覇,石垣,宮古 取得可能）
+・風速,風向き 取得可能
+
+▼短所
+・無料枠は機能制限あり
+・無料枠は1日に要求できるリクエスト100件まで
+
+[hr]
+
+■Simple Weather API
+
+▼jQueryプラグイン公式
+https://monkeecreate.github.io/jquery.simpleWeather/
+
+
+
+
+
+
+
+
+
+[/info]

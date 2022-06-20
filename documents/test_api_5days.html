@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<body>
+<div class="city-wrap">
+    <h2 id="city-name" class="city-name"></h2>
+    <div id="weather-discription" class="weather-discription"></div>
+    <div id="weather-temp" class="weather-temp big"></div>
+    <div id="weather-date" class="weather-date"></div>
+    <div class="detail-list">
+        <div class="detail-item">
+            <div class="text">最高気温</div>
+            <div id="tempMax" class="value tempMin"></div>
+        </div>
+        <div class="detail-item">
+            <div class="text">最低気温</div>
+            <div id="tempMin" class="value tempMax"></div>
+        </div>
+        <div class="detail-item">
+            <div class="text">体感気温</div>
+            <div id="feelsLike" class="value feelsLike"></div>
+        </div>
+        <div class="detail-item">
+            <div class="text">湿度</div>
+            <div id="humidity" class="value humidity"></div>
+        </div>
+        <div class="detail-item">
+            <div class="text">日の出</div>
+            <div id="sunrise" class="value sunrise"></div>
+        </div>
+        <div class="detail-item">
+            <div class="text">日の入</div>
+            <div id="sunset" class="value sunset"></div>
+        </div>
+        <div class="detail-item">
+            <div class="text">風速</div>
+            <div id="windSpeedUnit" class="value windSpeedUnit"></div>
+        </div>
+        <div class="detail-item">
+            <div class="text">気圧</div>
+            <div id="pressure" class="value pressure"></div>
+        </div>
+    </div>
+    <div class="weather-reportWrap">
+        <div id="weather-report" class="weather-report"></div>
+    </div>
+</div>
+
+
+<script>
+var API_KEY = '30dbd4ffb8eb7b4daf88e04ef1d32391';
+var defaultCity = 'ishigaki';
+
+//現在の天気を取得
+// function currentWeather() {
+//     $.ajax({
+//             url: 'https://api.openweathermap.org/data/2.5/weather?q=' + defaultCity + ',jp&units=metric&appid=' + API_KEY,
+//             dataType: 'json',
+//             type: 'GET'
+//         })
+//         .done(function (data) {
+//             getWeatherData(data);
+//             createDate(city.date);
+//             getDiscription(city.description);
+//             domWeatherWrite();
+//         })
+//         .fail(function (data) {
+//             console.log('現在の天気を取得出来ませんでした。')
+//         });
+// }
+//3時間ごとの天気を取得
+function threeWeather() {
+    $.ajax({
+            url: 'https://api.openweathermap.org/data/2.5/forecast?q=' + defaultCity + ',jp&units=metric&appid=' + API_KEY,
+            dataType: 'json',
+            type: 'GET'
+        })
+        .done(function (data) {
+            var insertHTML = '';
+            for (var i = 0; i <= 12; i++) {
+                insertHTML += domThreeWeatherWrite(data, i);
+            }
+            $('#weather-report').html(insertHTML);
+
+            // $('.weather-reportItem').click(function () {
+            //     var targetNum = $(this).index();
+            //     getWeatherData(data.list[targetNum]);
+            //     createDate(new Date(data.list[targetNum].dt * 1000));
+            //     getDiscription(city.description);
+            //     domWeatherWrite();
+            //     $('body, html').animate({
+            //         scrollTop: 0
+            //     }, 300, 'linear');
+            // })
+        })
+        .fail(function (data) {
+            console.log('3時間ごとの天気を取得出来ませんでした。')
+        });
+}
+function weatherInit() {
+    // currentWeather();
+    threeWeather();
+}
+weatherInit();
+
+// data初期化
+var city = {
+    name: '',
+    date: '',
+    time: '',
+    weather: '',
+    description: '',
+    temp: '',
+    tempMin: '',
+    tempMax: '',
+    feelsLike: '',
+    pressure: '',
+    humidity: '',
+    windSpeed: '',
+    WindSpeedUnit: '',
+    windDeg: '',
+    cloudsAll: '',
+    sunriseDate: '',
+    sunriseTime: '',
+    sunsetDate: '',
+    sunsetTime: '',
+};
+var current = {
+    day: '',
+    month: '',
+    date: '',
+    hours: '',
+    minitutes: '',
+    time: '',
+    timeText: '',
+}
+//データ格納
+function getWeatherData(data) {
+    (data.name) ? city.name = data.name.toUpperCase(): city.name;
+    city.description = data.weather[0].description;
+    city.date = new Date(data.dt * 1000);
+    city.temp = Math.round(data.main.temp);
+    city.tempMin = Math.round(data.main.temp_min);
+    city.tempMax = Math.round(data.main.temp_max);
+    city.feelsLike = Math.round(data.main.feels_like);
+    city.pressure = Math.round(data.main.pressure);
+    city.humidity = Math.round(data.main.humidity);
+    city.windSpeed = Math.round(data.wind.speed);
+    city.windDeg = Math.round(data.wind.deg);
+    city.cloudsAll = Math.round(data.clouds.all);
+    (data.sys.sunrise) ? city.sunriseDate = new Date(data.sys.sunrise * 1000): city.sunriseDate = undefined; //unixtime to date
+    (data.sys.sunset) ? city.sunsetDate = new Date(data.sys.sunset * 1000): city.sunsetDate = undefined; //unixtime to date
+    if (city.sunriseDate && city.sunsetDate) {
+        city.sunriseTime = city.sunriseDate.getHours() + ':' + city.sunriseDate.getMinutes();
+        city.sunsetTime = city.sunsetDate.getHours() + ':' + city.sunsetDate.getMinutes();
+    } else {
+        city.sunriseTime = '-';
+        city.sunsetTime = '-';
+    }
+}
+//日付&時間取得
+function createDate(date) {
+    current.day = date;
+    current.month = current.day.getMonth() + 1;
+    current.date = current.month + '/' + current.day.getDate();
+    current.hours = current.day.getHours();
+    current.minitutes = ('0' + current.day.getMinutes()).slice(-2);
+    current.time = current.hours + ':' + current.minitutes;
+    current.timeText = current.date + ' ' + current.time;
+}
+var UNIT = {
+    TEMP: '°',
+    PRESSURE: 'hPa',
+    HUMIDITY: '%',
+    WINDSPEED: 'm/s',
+    MIDDLE_DOT: ':'
+}
+//DOM要素に描写
+function domWeatherWrite() {
+    $('#city-name').html(city.name);
+    $('#weather-temp').html(city.temp + UNIT.TEMP);
+    $('#tempMin').html(city.tempMin + UNIT.TEMP);
+    $('#tempMax').html(city.tempMax + UNIT.TEMP);
+    $('#feelsLike').html(city.feelsLike + UNIT.TEMP);
+    $('#humidity').html(city.humidity + UNIT.HUMIDITY);
+    $('#sunrise').html(city.sunriseTime);
+    $('#sunset').html(city.sunsetTime);
+    $('#windSpeedUnit').html(city.windSpeed + UNIT.WINDSPEED);
+    $('#pressure').html(city.pressure + UNIT.PRESSURE);
+    $('#weather-date').html(current.timeText);
+    // $('.detail-list').css('display', 'flex');
+}
+ 
+//DOM要素に描写 3時間ごとver
+function domThreeWeatherWrite(data, i) {
+    var week = new Array("(日)", "(月)", "(火)", "(水)", "(木)", "(金)", "(土)");
+    var dt = data.list[i].dt_txt;
+    var date = new Date(dt.replace(/-/g, "/"));
+    date.setHours(date.getHours() + 9);
+    var month = date.getMonth() + 1;
+    var day = month + "/" + date.getDate();
+    var week = week[date.getDay()];
+    var time = date.getHours() + "：00";
+    var main = (data.list[i].weather[0].main).toLowerCase();
+    var html =
+        '<div class="weather-reportItem">' +
+        '<div class="weather-day">' + day + '</div>' +
+        '<div class="weather-week">' + week + '</div>' +
+        '<div class="weather-time">' + time + '</div>' +
+        '<div class="weather-main ' + main + '"></div>' +
+        '<div class="weather-temp">' + Math.round(data.list[i].main.temp) + UNIT.TEMP + '</div>' +
+        '</div>';
+    return html
+}
+</script>
+
+</body>
+</html>
