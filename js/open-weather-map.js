@@ -62,7 +62,7 @@ const callApi = async () =>
 
         // 天気アイコン条件分岐
         let icon =
-            main === 'sky' ? 'weather_sky.png' :
+            main === 'clear' ? 'weather_sky.png' :
             main === 'clouds' ? 'weather_cloud.png' :
             main === 'rain' ? 'weather_rain.png': ''
         iconImg = '<img src="icon/' + icon + '">'
